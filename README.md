@@ -42,7 +42,7 @@ nix develop -c cargo run -p sstp-harness -- plan-connect
 
 ## 作業規律
 
-- 実装順序と変更単位の完了条件は [TODO.md](TODO.md) を唯一の正として扱います。
+- 実装順序と変更提案単位の完了条件は [TODO.md](TODO.md) を唯一の正として扱います。各チェック項目を単独で確認・統合できる一単位として、上から順に進めます。
 - 未確定の設計判断は [docs/design-todo.md](docs/design-todo.md) に置きます。
 - 実施結果と検証記録は [docs/progress.md](docs/progress.md) に追記します。
 - コーディング規約は [docs/coding-rules.md](docs/coding-rules.md) に従います。
