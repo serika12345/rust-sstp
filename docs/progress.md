@@ -1,5 +1,20 @@
 # 進捗記録
 
+## 2026-07-22 H1-1 SSTP通信ヘッダー
+
+- 状態: 完了
+- 仕様根拠: MS-SSTP Protocol Revision 21.0の2.2.1。Version `0x10`、Data/Controlビット、Reserved、ネットワークバイトオーダーの12ビットLengthを記録
+- 実装: `SstpPacketHeader`、`SstpPacketKind`、`SstpPacketLength`、`EncodedSstpHeader`と分類済みerrorを`sstp-protocol`へ追加
+- 検証規則: Lengthは4から4095だけを構築可能とし、受信時はReservedを無視し、送信時は0へ正規化
+- TDD証跡: 実装前の対象テストが未定義のヘッダーAPIによりコンパイル失敗することを確認後、最小実装で成功へ変更
+- 対象テスト: `nix develop -c cargo test -p sstp-protocol`成功。12件成功、失敗0件
+- 全検証: `nix develop -c ./scripts/verify`成功。単体テスト17件、Clippy、構成、ドメイン型、供給網、CVE、Nix package build、black-box検証が成功
+- 検証補足: 初回のNix package buildはGit未追跡の新規moduleがsourceへ含まれず失敗。新規ファイルをindexへ追加して同じ全検証を再実行し成功
+- 外部相互運用: H1-1の範囲外。`verify-oracle`は計画どおり省略
+- 理由: 共通ヘッダーの不変条件をドメイン型で固定し、後続のData packetとControl packetが同じ検証済み表現を使えるようにするため
+- 不採用理由: 生の`u16`長と予約ビットを上位へ公開すると、範囲検証と送信時正規化が呼び出し側へ分散するため
+- 次: H1-2 SSTP Data packetを一個の完全な入力から符号化・復号する
+
 ## 2026-07-22 一般的な開発用語の表記修正
 
 - 状態: 完了（製品コード変更なし）
