@@ -16,7 +16,7 @@ rg -n "pub .*\b(u8|u16|u32|u64|usize|i32|String|Vec<|&\[u8\])\b" \
 sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$baseline" | sort -u > "$expected"
 
 if ! diff -u "$expected" "$actual"; then
-  echo "公開基本型が変化しました。領域型を使用するか、理由付きで基準へ追加してください。" >&2
+  echo "公開基本型が変化しました。ドメイン型を使用するか、理由付きで基準へ追加してください。" >&2
   exit 1
 fi
 

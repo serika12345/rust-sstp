@@ -1,4 +1,4 @@
 interface:
-  display_name: "rust-sstp 作業区切り確認"
-  short_description: "現在の作業区切りに照らして変更を確認する"
-  default_prompt: "現在の変更を作業区切りに照らして確認し、正しさ、安全性、構成、試験に関する指摘を先に報告してください。"
+  display_name: "rust-sstp PRレビュー"
+  short_description: "現在のPRに照らして変更をレビューする"
+  default_prompt: "現在の変更をPRに照らしてレビューし、正しさ、安全性、構成、試験に関する指摘を先に報告してください。"

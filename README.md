@@ -12,9 +12,9 @@
 
 ## 現在の構成
 
-- `sstp-protocol`: SSTPの語彙と通信形式。入出力を持たない純粋な領域層。
+- `sstp-protocol`: SSTPの語彙と通信形式。I/Oを持たない純粋なドメイン層。
 - `sstp-session`: 接続ライフサイクルを表す純粋な状態機械。
-- `sstp-harness`: 開発中のプロトコル動作を観察するコマンド行インターフェース兼入出力境界。
+- `sstp-harness`: 開発中のプロトコル動作を観察するコマンド行インターフェース兼I/O境界。
 
 オペレーティングシステム接続部、TLS、HTTP、PPP、Flutter連携は、対応する仕様と試験を確定してから追加します。先に汎用抽象を作りません。
 
@@ -42,7 +42,7 @@ nix develop -c cargo run -p sstp-harness -- plan-connect
 
 ## 作業規律
 
-- 実装順序と変更提案単位の完了条件は [TODO.md](TODO.md) を唯一の正として扱います。各チェック項目を単独で確認・統合できる一単位として、上から順に進めます。
+- 実装順序とPR単位の完了条件は [TODO.md](TODO.md) を唯一の正として扱います。各チェック項目を単独でレビュー・統合できる一つのPRとして、上から順に進めます。
 - 未確定の設計判断は [docs/design-todo.md](docs/design-todo.md) に置きます。
 - 実施結果と検証記録は [docs/progress.md](docs/progress.md) に追記します。
 - コーディング規約は [docs/coding-rules.md](docs/coding-rules.md) に従います。

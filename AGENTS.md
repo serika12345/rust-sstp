@@ -17,15 +17,14 @@ Rejected alternative: starting with the user interface before the communication 
 
 ## 2. Communication, language, and paths
 
-- Lead with the result and the current work unit.
+- Lead with the result and the current PR.
 - Separate verified facts from assumptions and cite the specification basis for decisions.
 - State blockers, exclusions, and remaining work explicitly.
 - Every material design decision in Japanese design documents must include `理由` and `不採用理由`.
-- Write all user-facing communication and repository natural language in Japanese, including technical terminology.
+- Write user-facing communication and repository natural language in Japanese while retaining established terms commonly used in Japanese software development, such as `domain`, `I/O`, and `PR`.
 - `AGENTS.md` is the only repository document that may be written in English.
-- Preserve exact spellings only for proper nouns, source identifiers, language keywords, commands, file names, and official names.
-- Do not use unexplained English jargon in Japanese text.
-- Avoid unclear project-management jargon. Use the Japanese terms `作業区切り` and `完了条件` outside this file, and the English terms `work unit` and `completion criteria` in this file.
+- Preserve exact spellings for proper nouns, source identifiers, language keywords, commands, file names, official names, and established technical or project terms.
+- Do not use unexplained English jargon in Japanese text, but do not invent Japanese replacements for established terms commonly understood in Japan.
 - When referring to a repository file or directory, write only a repository-relative path.
 - Never write absolute paths, home-directory shorthand, file URIs, or relative paths that resolve outside the repository in documentation, comments, work records, or user-facing reports.
 - Write command examples as if they are run from the repository root.
@@ -36,7 +35,7 @@ Rejected alternative: mixed-language jargon and environment-specific paths shift
 
 ## 3. Before starting work
 
-1. Read the active work unit and completion criteria in `TODO.md`.
+1. Read the active PR and completion criteria in `TODO.md`.
 2. Read `docs/design-todo.md` and the latest entry in `docs/progress.md`.
 3. Search the affected modules and tests before editing.
 4. Enter the Nix environment through direnv or `nix develop`.
@@ -44,7 +43,7 @@ Rejected alternative: mixed-language jargon and environment-specific paths shift
 
 Reason: changes must remain linear, reviewable, and independently integrable.
 
-Rejected alternative: starting with implementation can accidentally decide unresolved questions or absorb responsibilities from another work unit.
+Rejected alternative: starting with implementation can accidentally decide unresolved questions or absorb responsibilities from another PR.
 
 ## 4. Canonical development environment
 
@@ -59,21 +58,21 @@ Rejected alternative: global tools or editor-bundled toolchains create differenc
 
 ## 5. Planning and progress
 
-- `TODO.md` is the sole authority for implementation order, work units, and completion criteria.
+- `TODO.md` is the sole authority for implementation order, PRs, and completion criteria.
 - `docs/design-todo.md` contains only unresolved design decisions.
 - `docs/progress.md` contains execution results and verification evidence.
-- Keep only one work unit in progress.
-- Record discoveries outside the current work unit instead of implementing them immediately.
+- Keep only one PR in progress.
+- Record discoveries outside the current PR instead of implementing them immediately.
 
 Reason: planned work, unresolved decisions, and verified results must retain distinct meanings.
 
 Rejected alternative: combining everything in one task list makes completion criteria compete with research notes.
 
-## 6. Branches and change units
+## 6. Branches and PRs
 
 - Keep each change a small vertical slice.
 - State completion criteria, included work, excluded work, verification, and stop conditions before editing.
-- Update the design documents and work unit before changing an established boundary.
+- Update the design documents and PR plan before changing an established boundary.
 - Do not mix unrelated formatting, renaming, or dependency updates into a change.
 
 Reason: small coherent changes are easier to review, bisect, and revert.
@@ -83,7 +82,7 @@ Rejected alternative: broad cross-cutting changes make individual decisions and 
 ## 7. Architecture
 
 - Preserve the dependency direction `sstp-harness -> sstp-session -> sstp-protocol`.
-- Keep `sstp-protocol` and `sstp-session` free of input/output, operating-system dependencies, and `unsafe` code.
+- Keep `sstp-protocol` and `sstp-session` free of I/O, operating-system dependencies, and `unsafe` code.
 - State machines return typed actions instead of performing side effects.
 - Inject operating-system facilities, TLS, sockets, clocks, randomness, and credentials at explicit boundaries.
 - Do not create generic dumping grounds named `utils`, `common`, `helpers`, or `types`.
@@ -98,7 +97,7 @@ Rejected alternative: a large generic core or speculative abstractions hide resp
 - Prefer domain types in public interfaces.
 - Do not expose raw bytes, integers, or strings while leaving their wire meaning to callers.
 - Validate invariants in constructors so constructed values remain valid.
-- Functions without input/output side effects return meaningful values instead of hiding results in `()`.
+- Functions without I/O side effects return meaningful values instead of hiding results in `()`.
 - Errors use enumerable categories and preserve their source when wrapping another error.
 - Public names use protocol or responsibility vocabulary.
 
@@ -181,7 +180,7 @@ Rejected alternative: improvised workflows can omit completion criteria or requi
 
 ## 15. Final checklist
 
-- [ ] The change stays inside the current work unit.
+- [ ] The change stays inside the current PR.
 - [ ] Reasons and rejected alternatives are current.
 - [ ] Input/output or `unsafe` code has not leaked into `sstp-protocol` or `sstp-session`.
 - [ ] The change does not add unjustified primitive exposure or generic dumping-ground modules.

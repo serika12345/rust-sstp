@@ -29,7 +29,7 @@ check_absent "純粋クレートではunsafeを禁止する" \
   'unsafe[[:space:]]+(fn|impl|trait|extern)|unsafe[[:space:]]*\{' \
   crates/sstp-protocol crates/sstp-session -g '*.rs'
 
-check_absent "純粋クレートでは入出力依存を禁止する" \
+check_absent "純粋クレートではI/O依存を禁止する" \
   'std::(env|fs|net|process)|tokio|async_std|smol' \
   crates/sstp-protocol crates/sstp-session -g '*.rs'
 
