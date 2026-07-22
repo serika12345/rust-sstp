@@ -1,0 +1,4 @@
+interface:
+  display_name: "rust-sstp 確認済み変更の統合"
+  short_description: "統合前に確認済み作業を再検査する"
+  default_prompt: "確認済み変更を作業区切りと全検証要件に照らして再検査し、明示的に許可された統合作業だけを準備してください。"

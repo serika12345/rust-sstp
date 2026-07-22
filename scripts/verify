@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+./scripts/verify-quick
+./scripts/verify-native
+./scripts/verify-blackbox
+./scripts/verify-oracle

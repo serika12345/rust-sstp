@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+matches="$(mktemp "${TMPDIR:-/tmp}/rust-sstp-invisible-chars.XXXXXX")"
+trap 'rm -f "$matches"' EXIT
+
+set +e
+rg -n -I -P --hidden \
+  -g '!.git/**' \
+  '[\x{0000}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}]|\p{Cf}' \
+  . > "$matches"
+check_exit_code="$?"
+set -e
+
+if [ "$check_exit_code" -eq 0 ]; then
+  echo "疑わしい不可視文字またはUnicode制御文字が見つかりました:" >&2
+  cat "$matches" >&2
+  exit 1
+fi
+
+if [ "$check_exit_code" -ne 1 ]; then
+  echo "check-no-invisible-chars: rgが終了状態 $check_exit_code で失敗しました" >&2
+  exit "$check_exit_code"
+fi
+
+echo "check-no-invisible-chars: 成功"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "rust-sstp ブランチ継続"
+  short_description: "既存作業を失わずブランチを再開する"
+  default_prompt: "既存変更を保ち、現在の作業区切り内に留まりながら、このブランチを確認して安全に作業を再開してください。"

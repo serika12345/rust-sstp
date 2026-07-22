@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+if [ "${RUST_SSTP_ORACLE_ENABLED:-0}" != "1" ]; then
+  echo "verify-oracle: 省略（比較試験基盤の実装後に RUST_SSTP_ORACLE_ENABLED=1 を設定してください）"
+  exit 0
+fi
+
+echo "verify-oracle: 外部相互運用試験基盤は未実装です" >&2
+exit 1

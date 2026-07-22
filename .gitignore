@@ -1,0 +1,30 @@
+# Rust構築出力
+/target/
+**/*.rs.bk
+
+# Nixとdirenvの手元状態
+/.direnv/
+/result
+/result-*
+
+# 手元の編集環境とオペレーティングシステムが作るファイル
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+*.swp
+*.swo
+*~
+
+# 手元のログ、パケット記録、資格情報、一時出力
+*.log
+*.pcap
+*.pcapng
+*.pem
+*.key
+*.p12
+*.pfx
+/tmp/
+/temp/

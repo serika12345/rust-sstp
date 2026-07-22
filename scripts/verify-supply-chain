@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+cargo metadata --locked --format-version 1 >/dev/null
+./scripts/verify-cves
+cargo deny check
+

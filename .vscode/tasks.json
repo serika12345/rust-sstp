@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "rust-sstp: 全検証",
+      "type": "shell",
+      "command": "nix develop -c ./scripts/verify",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "rust-sstp: Cargo試験",
+      "type": "shell",
+      "command": "nix develop -c cargo test --workspace",
+      "group": "test",
+      "problemMatcher": ["$rustc"]
+    },
+    {
+      "label": "rust-sstp: Clippy検査",
+      "type": "shell",
+      "command": "nix develop -c cargo clippy --workspace --all-targets -- -D warnings",
+      "group": "build",
+      "problemMatcher": ["$rustc"]
+    }
+  ]
+}

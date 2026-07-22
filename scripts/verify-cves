@@ -1,0 +1,69 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+baseline="scripts/cve-audit-baseline.json"
+audit_json="$(mktemp "${TMPDIR:-/tmp}/rust-sstp-cargo-audit.XXXXXX")"
+trap 'rm -f "$audit_json"' EXIT
+
+set +e
+cargo audit --json > "$audit_json"
+audit_exit_code="$?"
+set -e
+
+python3 - "$baseline" "$audit_json" "$audit_exit_code" <<'PY'
+import json
+import sys
+
+baseline_path, audit_path, audit_status_text = sys.argv[1], sys.argv[2], sys.argv[3]
+audit_status = int(audit_status_text)
+
+with open(baseline_path, "r", encoding="utf-8") as handle:
+    baseline = json.load(handle)
+
+with open(audit_path, "r", encoding="utf-8") as handle:
+    audit = json.load(handle)
+
+configured = baseline.get("cargo", {}).get("rustSecIds", [])
+if not isinstance(configured, list):
+    print(f"{baseline_path} の cargo.rustSecIds は配列で定義してください。", file=sys.stderr)
+    sys.exit(2)
+
+allowed = sorted(set(configured))
+vulnerabilities = audit.get("vulnerabilities", {})
+if isinstance(vulnerabilities, dict):
+    entries = vulnerabilities.get("list", [])
+elif isinstance(vulnerabilities, list):
+    entries = vulnerabilities
+else:
+    entries = []
+
+current = sorted(
+    {
+        entry.get("advisory", {}).get("id")
+        for entry in entries
+        if isinstance(entry, dict) and entry.get("advisory", {}).get("id")
+    }
+)
+unexpected = [item for item in current if item not in allowed]
+stale = [item for item in allowed if item not in current]
+
+if unexpected:
+    print("基準にないRustSec勧告が見つかりました:", file=sys.stderr)
+    for item in unexpected:
+        print(f"  {item}", file=sys.stderr)
+    sys.exit(1)
+
+if stale:
+    print("不要になったRustSec基準項目が見つかりました:", file=sys.stderr)
+    for item in stale:
+        print(f"  {item}", file=sys.stderr)
+    sys.exit(1)
+
+if audit_status not in (0, 1):
+    print(f"cargo auditが終了状態 {audit_status} で失敗しました。", file=sys.stderr)
+    sys.exit(audit_status)
+
+print(f"verify-cves: 成功（基準で追跡するRustSec勧告は{len(current)}件）")
+PY

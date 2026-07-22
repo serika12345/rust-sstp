@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+output_dir="target/rust-sstp-blackbox"
+expected="tests/expected/plan-connect.stdout"
+actual="$output_dir/plan-connect.stdout"
+
+mkdir -p "$output_dir"
+cargo run --quiet --locked -p sstp-harness -- plan-connect > "$actual"
+
+if ! cmp -s "$expected" "$actual"; then
+  echo "sstp-harnessの出力が $expected と一致しません" >&2
+  diff -u "$expected" "$actual" >&2
+  exit 1
+fi
+
+echo "verify-blackbox: 成功"

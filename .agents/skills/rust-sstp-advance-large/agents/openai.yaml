@@ -1,0 +1,4 @@
+interface:
+  display_name: "rust-sstp 作業区切り完了"
+  short_description: "現在の作業区切りを検証済みの完了状態まで進める"
+  default_prompt: "範囲を広げず、現在の作業区切りをテスト駆動開発による小さな単位で完了まで進め、全検証を実行してください。"

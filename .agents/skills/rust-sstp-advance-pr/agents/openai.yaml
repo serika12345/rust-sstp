@@ -1,0 +1,4 @@
+interface:
+  display_name: "rust-sstp 変更提案単位"
+  short_description: "確認可能な一つの縦切りを用意する"
+  default_prompt: "現在の作業区切りについて、試験、文書、全検証の証跡を含む、確認可能な一つの変更提案単位を用意してください。"

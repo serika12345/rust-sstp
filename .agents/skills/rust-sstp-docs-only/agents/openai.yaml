@@ -1,0 +1,4 @@
+interface:
+  display_name: "rust-sstp 文書のみ"
+  short_description: "証跡に基づいて計画と文書を整合させる"
+  default_prompt: "製品コードを変更せず、現在のリポジトリ証跡に合わせて文書と計画記録を整合させてください。"

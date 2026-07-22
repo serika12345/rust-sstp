@@ -1,0 +1,4 @@
+interface:
+  display_name: "rust-sstp 小さな増分"
+  short_description: "テスト駆動による検証済みの一増分を進める"
+  default_prompt: "現在の作業区切りをテスト駆動による最小の一増分だけ進めて検証し、プロジェクト記録を更新してください。"

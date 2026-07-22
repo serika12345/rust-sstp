@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+./scripts/verify
+cargo nextest run --workspace --locked
+echo "verify-nightly: 成功"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "rust-sstp 状態"
+  short_description: "現在の作業区切りと次の作業を報告する"
+  default_prompt: "ファイルを変更せず、この作業複製を確認し、現在の作業区切り、証跡、阻害要因、次の最小作業を報告してください。"

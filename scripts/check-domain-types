@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+baseline="docs/domain-primitive-baseline.txt"
+actual="$(mktemp "${TMPDIR:-/tmp}/rust-sstp-domain-types.XXXXXX")"
+expected="$(mktemp "${TMPDIR:-/tmp}/rust-sstp-domain-baseline.XXXXXX")"
+trap 'rm -f "$actual" "$expected"' EXIT
+
+rg -n "pub .*\b(u8|u16|u32|u64|usize|i32|String|Vec<|&\[u8\])\b" \
+  crates/sstp-protocol crates/sstp-session -g '*.rs' \
+  | sed -E 's/^([^:]+):[0-9]+:/\1:/' \
+  | sort -u > "$actual" || true
+
+sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$baseline" | sort -u > "$expected"
+
+if ! diff -u "$expected" "$actual"; then
+  echo "公開基本型が変化しました。領域型を使用するか、理由付きで基準へ追加してください。" >&2
+  exit 1
+fi
+
+echo "check-domain-types: 成功"
