@@ -1,5 +1,6 @@
 use crate::{
-    EncodedSstpHeader, SstpHeaderDecodeError, SstpPacketHeader, SstpPacketKind, SstpPacketLength,
+    EncodedSstpHeader, SstpHeaderDecodeError, SstpPacketFrame, SstpPacketHeader, SstpPacketKind,
+    SstpPacketLength,
 };
 use core::cmp::Ordering;
 use core::fmt;
@@ -137,6 +138,14 @@ impl TryFrom<&[u8]> for SstpDataPacket {
         };
 
         Ok(Self { header, payload })
+    }
+}
+
+impl TryFrom<SstpPacketFrame> for SstpDataPacket {
+    type Error = SstpDataPacketDecodeError;
+
+    fn try_from(frame: SstpPacketFrame) -> Result<Self, Self::Error> {
+        Self::try_from(frame.as_bytes())
     }
 }
 

@@ -1,5 +1,22 @@
 # 進捗記録
 
+## 2026-07-22 H1-3 SSTPパケット逐次復号器
+
+- 状態: 完了
+- 仕様根拠: MS-SSTP Protocol Revision 21.0の2.1、2.2.1、2.2.3。HTTPSによる配送とSSTPヘッダーの12ビットLengthを記録
+- 実装: `SstpPacketFrame`、`SstpPacketStreamDecoder`、`SstpPacketStreamStep`、`SstpStreamConsumedBytes`、消費長を保持する分類済みエラーを`sstp-protocol`へ追加
+- 構成: 逐次復号を`packet_decoder.rs`、検証済みpacket frameを`packet_frame.rs`へ分離し、`data_packet.rs`にbuffer管理を追加せず、製品コード150行と23行、専用テスト177行を別ファイルで保持
+- 検証規則: 内部bufferは次の一パケットに必要な4095バイト以下だけを保持し、未完了入力と不正入力を区別し、一回ごとの消費済み入力長を返す
+- TDD証跡: 実装前の対象テストが未定義の逐次復号APIによりコンパイル失敗することを確認後、実装で成功へ変更
+- 分割テスト: 2個のData Packetを連結した12バイト入力に対する全2048通りの分割を決定論的に生成し、同じパケット列を得ることを確認
+- 対象テスト: `nix develop -c cargo test -p sstp-protocol`成功。26件成功、失敗0件
+- 全検証: `nix develop -c ./scripts/verify`成功。単体テスト31件、Clippy、構成、ドメイン型、供給網、CVE、Nix package build、black-box検証が成功
+- 外部相互運用: H1-3の範囲外。`verify-oracle`は計画どおり省略
+- 含まない: ソケット、TLS、非同期実行基盤、Control Packetの意味解析
+- 理由: TCPまたはTLS recordの境界とSSTPパケット境界を分け、Lengthだけに基づく純粋な逐次復号を実行環境から独立して試験するため
+- 不採用理由: 一回のreadを一パケットとみなすと断片化と結合に対応できず、入力chunk全体を保持すると上限のないメモリ使用を許すため
+- 次: H1-4 通信ヘッダーとData Packet復号器をファズテスト対象にする
+
 ## 2026-07-22 H1-2 SSTP Data Packet
 
 - 状態: 完了
