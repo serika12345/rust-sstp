@@ -1,5 +1,20 @@
 # 進捗記録
 
+## 2026-07-22 H1-2 SSTP Data Packet
+
+- 状態: 完了
+- 仕様根拠: MS-SSTP Protocol Revision 21.0の2.2.3。Cビット0、payload長`Length - 4`、payloadがカプセル化した上位プロトコルのframeであることを記録
+- 実装: `SstpDataPayload`、`SstpDataPacket`、`EncodedSstpDataPacket`と分類済みエラーを`sstp-protocol`へ追加
+- 検証規則: payloadは0から4091バイトだけを構築可能にし、復号時は宣言長と入力全長を一致させ、切り詰めと余剰バイトを別のエラーとして拒否
+- TDD証跡: 実装前の対象テストが未定義のData Packet APIによりコンパイル失敗することを確認後、実装で成功へ変更
+- 対象テスト: `nix develop -c cargo test -p sstp-protocol`成功。19件成功、失敗0件
+- 全検証: `nix develop -c ./scripts/verify`成功。単体テスト24件、Clippy、構成、ドメイン型、供給網、CVE、Nix package build、black-box検証が成功
+- 外部相互運用: H1-2の範囲外。`verify-oracle`は計画どおり省略
+- 含まない: PPP内容の解釈、複数パケットの連続入力、メモリ再利用最適化
+- 理由: SSTPパケット境界の長さ検証とPPP frameの解釈を分け、各層の失敗を独立して試験できるようにするため
+- 不採用理由: 生の`Vec<u8>`と長さ検証を符号化ごとに委ねると、不正なパケット状態を公開APIで表現できるため
+- 次: H1-3 断片化・結合された入力からSSTPパケットを逐次復号する
+
 ## 2026-07-22 H1-1 SSTP通信ヘッダー
 
 - 状態: 完了
