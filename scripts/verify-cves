@@ -4,26 +4,29 @@ set -eu
 cd "$(dirname "$0")/.."
 
 baseline="scripts/cve-audit-baseline.json"
-audit_json="$(mktemp "${TMPDIR:-/tmp}/rust-sstp-cargo-audit.XXXXXX")"
-trap 'rm -f "$audit_json"' EXIT
+root_audit_json="$(mktemp "${TMPDIR:-/tmp}/rust-sstp-cargo-audit-root.XXXXXX")"
+fuzz_audit_json="$(mktemp "${TMPDIR:-/tmp}/rust-sstp-cargo-audit-fuzz.XXXXXX")"
+trap 'rm -f "$root_audit_json" "$fuzz_audit_json"' EXIT
 
 set +e
-cargo audit --json > "$audit_json"
-audit_exit_code="$?"
+cargo audit --json > "$root_audit_json"
+root_audit_exit_code="$?"
+cargo audit --file fuzz/Cargo.lock --json > "$fuzz_audit_json"
+fuzz_audit_exit_code="$?"
 set -e
 
-python3 - "$baseline" "$audit_json" "$audit_exit_code" <<'PY'
+python3 - \
+  "$baseline" \
+  "$root_audit_json" "$root_audit_exit_code" \
+  "$fuzz_audit_json" "$fuzz_audit_exit_code" <<'PY'
 import json
 import sys
 
-baseline_path, audit_path, audit_status_text = sys.argv[1], sys.argv[2], sys.argv[3]
-audit_status = int(audit_status_text)
+baseline_path = sys.argv[1]
+audit_arguments = sys.argv[2:]
 
 with open(baseline_path, "r", encoding="utf-8") as handle:
     baseline = json.load(handle)
-
-with open(audit_path, "r", encoding="utf-8") as handle:
-    audit = json.load(handle)
 
 configured = baseline.get("cargo", {}).get("rustSecIds", [])
 if not isinstance(configured, list):
@@ -31,21 +34,35 @@ if not isinstance(configured, list):
     sys.exit(2)
 
 allowed = sorted(set(configured))
-vulnerabilities = audit.get("vulnerabilities", {})
-if isinstance(vulnerabilities, dict):
-    entries = vulnerabilities.get("list", [])
-elif isinstance(vulnerabilities, list):
-    entries = vulnerabilities
-else:
-    entries = []
+current_items = set()
+for audit_path, audit_status_text in zip(
+    audit_arguments[0::2], audit_arguments[1::2], strict=True
+):
+    audit_status = int(audit_status_text)
+    with open(audit_path, "r", encoding="utf-8") as handle:
+        audit = json.load(handle)
 
-current = sorted(
-    {
+    vulnerabilities = audit.get("vulnerabilities", {})
+    if isinstance(vulnerabilities, dict):
+        entries = vulnerabilities.get("list", [])
+    elif isinstance(vulnerabilities, list):
+        entries = vulnerabilities
+    else:
+        entries = []
+
+    current_items.update(
         entry.get("advisory", {}).get("id")
         for entry in entries
         if isinstance(entry, dict) and entry.get("advisory", {}).get("id")
-    }
-)
+    )
+    if audit_status not in (0, 1):
+        print(
+            f"cargo auditが{audit_path}の検査で終了状態 {audit_status} により失敗しました。",
+            file=sys.stderr,
+        )
+        sys.exit(audit_status)
+
+current = sorted(current_items)
 unexpected = [item for item in current if item not in allowed]
 stale = [item for item in allowed if item not in current]
 
@@ -60,10 +77,6 @@ if stale:
     for item in stale:
         print(f"  {item}", file=sys.stderr)
     sys.exit(1)
-
-if audit_status not in (0, 1):
-    print(f"cargo auditが終了状態 {audit_status} で失敗しました。", file=sys.stderr)
-    sys.exit(audit_status)
 
 print(f"verify-cves: 成功（基準で追跡するRustSec勧告は{len(current)}件）")
 PY

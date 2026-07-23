@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -11,13 +15,22 @@
       self,
       nixpkgs,
       flake-utils,
+      rust-overlay,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ rust-overlay.overlays.default ];
+        };
         lib = pkgs.lib;
+        fuzzRustToolchain = pkgs.rust-bin.nightly.latest.default;
+        cargoFuzzNightly = pkgs.writeShellScriptBin "cargo-fuzz" ''
+          export PATH="${fuzzRustToolchain}/bin:$PATH"
+          exec ${pkgs.cargo-fuzz}/bin/cargo-fuzz "$@"
+        '';
       in
       {
         packages.default = pkgs.rustPlatform.buildRustPackage {
@@ -43,6 +56,7 @@
               cargo
               cargo-audit
               cargo-deny
+              cargoFuzzNightly
               cargo-nextest
               clippy
               direnv

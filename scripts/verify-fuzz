@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+cargo fmt --manifest-path fuzz/Cargo.toml -- --check
+cargo metadata --manifest-path fuzz/Cargo.toml --locked --format-version 1 >/dev/null
+
+fuzz_seconds=${RUST_SSTP_FUZZ_SECONDS:-3}
+case "$fuzz_seconds" in
+  ''|*[!0-9]*|0)
+    echo "verify-fuzz: RUST_SSTP_FUZZ_SECONDSは正の整数で指定してください" >&2
+    exit 2
+    ;;
+esac
+
+fuzz_work_dir=$(mktemp -d "${TMPDIR:-/tmp}/rust-sstp-fuzz.XXXXXX")
+trap 'rm -rf "$fuzz_work_dir"' EXIT HUP INT TERM
+corpus_dir="$fuzz_work_dir/corpus"
+artifact_dir="$fuzz_work_dir/artifacts"
+mkdir -p "$corpus_dir" "$artifact_dir"
+
+python3 - "fuzz/seeds/sstp_packet_decode" "$corpus_dir" <<'PY'
+from pathlib import Path
+import sys
+
+source = Path(sys.argv[1])
+destination = Path(sys.argv[2])
+for seed in sorted(source.glob("*.hex")):
+    (destination / seed.stem).write_bytes(bytes.fromhex(seed.read_text(encoding="utf-8")))
+PY
+
+cargo fuzz run --target-dir "$fuzz_work_dir/target" sstp_packet_decode "$corpus_dir" -- \
+  -artifact_prefix="$artifact_dir/" \
+  -max_len=8192 \
+  -max_total_time="$fuzz_seconds" \
+  -print_final_stats=1 \
+  -rss_limit_mb=1024
+
+echo "verify-fuzz: 成功（${fuzz_seconds}秒）"

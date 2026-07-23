@@ -1,0 +1,22 @@
+[package]
+name = "rust-sstp-fuzz"
+version = "0.0.0"
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+sstp-protocol = { path = "../crates/sstp-protocol", version = "0.1.0" }
+
+[[bin]]
+name = "sstp_packet_decode"
+path = "fuzz_targets/sstp_packet_decode.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]

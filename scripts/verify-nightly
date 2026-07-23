@@ -5,4 +5,5 @@ cd "$(dirname "$0")/.."
 
 ./scripts/verify
 cargo nextest run --workspace --locked
+RUST_SSTP_FUZZ_SECONDS=${RUST_SSTP_NIGHTLY_FUZZ_SECONDS:-300} ./scripts/verify-fuzz
 echo "verify-nightly: 成功"

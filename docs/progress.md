@@ -1,5 +1,24 @@
 # 進捗記録
 
+## 2026-07-23 H1-4 SSTP復号器のファズテスト
+
+- 状態: 完了
+- 対象: `SstpPacketHeader`、一個の完全な`SstpDataPacket`、`SstpPacketStreamDecoder`を同じ任意入力で検査
+- 性質: ヘッダーとData Packetの意味的な往復一致、逐次復号器の消費長上限、完成したData Packetの意味的な往復一致を検査
+- 入力分割: 逐次復号器へ入力全体と1バイト単位の両方を与え、未完了入力、複数packet、不正入力の経路を探索
+- 最小corpus: 最小Data Packet、PPP protocol値を含むData Packet、Control Packet、未対応Versionの4入力
+- 実行制限: 最大入力8192バイト、使用メモリ上限1024 MiB、生成corpus・artifact・build出力は実行ごとの一時ディレクトリに限定
+- 構成: 製品コードを変更せず、ファズ対象86行、実行script 40行、運用文書61行、seedを責務別ファイルへ分離
+- TDD証跡: 最初に`cargo fuzz`が正規Nix環境になく失敗し、追加後もstable Rustがsanitizer optionを拒否する失敗を確認。ファズcommandだけが固定したnightly Rustを使う構成で成功へ変更
+- 依存: `cargo-fuzz 0.13.2`、`libfuzzer-sys 0.4.13`、`rust-overlay`を版固定し、NCSAの例外を`libfuzzer-sys 0.4.13`だけに限定
+- 供給網検証: rootとfuzzの両方のlockfileについてRustSec 0件、advisories、bans、licenses、sourcesが成功
+- 通常検証: `nix develop -c ./scripts/verify`成功。単体テスト31件、Clippy、構成、ドメイン型、供給網、CVE、Nix package build、black-box検証が成功。3秒のファズテストは253,854入力、最大RSS 549 MiB、異常0件
+- 長時間検証: `nix develop -c ./scripts/verify-nightly`を既定値で実行して成功。nextest 31件成功。300秒指定のファズテストは301秒で7,055,716入力、最大RSS 591 MiB、異常0件
+- 含まない: Control Packetの意味解析、外部サーバー、製品APIの変更
+- 理由: 長さ境界を持つ三つの純粋な復号入口をcoverage-guided fuzzingとsanitizerで継続的に探索し、固定テストだけでは列挙できない入力を検査するため
+- 不採用理由: 通常検証へ長時間走行だけを組み込むとPR検証が遅くなり、短時間走行だけでは探索時間が不足するため、3秒と300秒を分離
+- 次: H2-1 Control Packet共通部、接続要求、カプセル化プロトコル識別属性の符号化・復号
+
 ## 2026-07-22 H1-3 SSTPパケット逐次復号器
 
 - 状態: 完了

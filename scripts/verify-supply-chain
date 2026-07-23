@@ -4,6 +4,7 @@ set -eu
 cd "$(dirname "$0")/.."
 
 cargo metadata --locked --format-version 1 >/dev/null
+cargo metadata --manifest-path fuzz/Cargo.toml --locked --format-version 1 >/dev/null
 ./scripts/verify-cves
 cargo deny check
-
+cargo deny --manifest-path fuzz/Cargo.toml check

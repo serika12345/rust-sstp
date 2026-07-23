@@ -2,7 +2,7 @@
 
 ## 基本方針
 
-- `Cargo.lock` と `flake.lock` をコミット対象にします。
+- `Cargo.lock`、`fuzz/Cargo.lock`、`flake.lock` をコミット対象にします。
 - Rust依存は `cargo-deny` で既知問題、ライセンス、取得元、重複を検査します。
 - CVEの一時例外は `scripts/cve-audit-baseline.json` に期限と理由を付けます。
 - Nix配布物を `nix flake check` と `nix build .#default` で検証します。
